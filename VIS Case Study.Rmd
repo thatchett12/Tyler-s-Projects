@@ -1,0 +1,78 @@
+---
+title: "Vivint Case Study"
+author: "Tyler Hatchett"
+date: "12/19/2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+Vivint <- read.csv(file = "C:/Users/Tyler Hatchett/Documents/VIS Case Study Data.csv", header = TRUE, sep = ",")
+```
+
+```{r}
+class(Vivint$RMR)
+```
+
+
+```{r}
+head(Vivint)
+```
+
+```{r}
+names(Vivint)[1] <- paste("EVENT")
+head(Vivint)
+
+```
+
+```{r}
+library(tidyverse)
+
+new.Vivint <- Vivint[- grep("New Opportunity", Vivint$EVENT),]
+newest.Vivint <- new.Vivint[- grep("Sale", new.Vivint$EVENT),]
+```
+
+```{r}
+head(newest.Vivint)
+newest.Vivint <- na.omit(newest.Vivint, cols = "RMR")
+```
+
+```{r}
+num.reps <- unique(newest.Vivint$REPBADGEID)
+length(num.reps)
+```
+
+```{r}
+library(plyr)
+
+rep.sum <- ddply(newest.Vivint,.(DEPARTMENT, REPBADGEID), summarize, RMR=sum(RMR), COUNT=length(REPBADGEID))
+```
+
+```{r}
+department.sum <- ddply(rep.sum,.(DEPARTMENT), summarize, RMR=sum(RMR), COUNT=length(DEPARTMENT))
+```
+
+```{r}
+high.earners <- department.sum[which(department.sum$RMR > 5000),]
+high.earners
+```
+
+```{r}
+ggplot(high.earners, aes(DEPARTMENT, RMR)) + geom_bar(stat = "identity")
+```
+
+```{r}
+max(rep.sum$RMR)
+#16899, Channel Other
+```
+
+```{r}
+max(high.earners$RMR)
+```
+
