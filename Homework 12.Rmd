@@ -1,0 +1,65 @@
+---
+title: "Stat 123 Homework 12"
+author: "Tyler Hatchett"
+date: "10/3/19"
+output: word_document
+---
+
+```{r}
+?rnorm
+?sample
+```
+
+
+
+Set the random number seed to 2 and create a vector 'rval' containing a random sample of 10 normals with mean 0 and sd 10.
+
+```{r}
+set.seed(2)
+rval <- rnorm(10, 0, 10)
+```
+
+Use a "for loop" to find the minimum of the 'rval' vector.
+
+```{r}
+
+for (i in 1:length(rval)) {
+  small <- min(rval)
+}
+small
+```
+
+Use the 'min' function to find the minimum of the 'rval' vector.
+
+```{r}
+min(rval)
+```
+
+Create a function named 'fun' whose input is a matrix and whose output is the a list of length two containing: 1. a vector giving the number of unique values per row, and 2. the mean of number of unique values.  Name the elements of the list returned by this function "unique" and "mean", respectively.
+
+```{r}
+fun <- function(x){
+ 
+  unique <- apply(x, 1, unique)
+  count <- sapply(unique, length)
+  mean <- mean(count)
+  list(unique = count, mean = mean)
+}
+```
+
+Use the 'sample' function to draw 1000 samples from a discrete probability distribution on the integers 1,2,...,6 with probabilities c(0.1, 0.2, 0.3, 0.2, 0.1, 0.1).
+
+```{r}
+our_sample <- sample(c(1:6), 1000, replace = TRUE)
+```
+
+Create a 100x10 matrix names 'M' containing these values and call your function 'fun' using the 'M' matrix as its argument.
+
+```{r}
+M <- matrix(data = our_sample, nrow = 100, ncol = 10)
+```
+
+```{r}
+fun(M)
+```
+

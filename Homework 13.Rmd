@@ -1,0 +1,100 @@
+---
+title: "Homework 13"
+author: "Tyler Hatchett"
+date: "10/8/2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Complete the definition of the function.  It takes one argument "year" (where
+"year" can range from "1910" to "2013") and returns a data.frame giving the
+count by gender of names for babies born in the specified year.  The variable
+names should be "name", "sex", and "count".  If the value of the "year"
+argument is "all", a data.frame containing all the data should be returned.
+Use the data provided in the attached folder "names-full-datasets"  Hint: You will probably want to use the 'paste' function.
+```{r}
+#reading in the data.
+baby.names <- function(year="all"){
+  setwd("/Users/Tyler Hatchett/Downloads/names-full-datasets/names-full-datasets")
+  if(year== "all"){
+    fulldata <- data.frame()
+    for (i in 1910:2013){
+      filename <- paste("yob", i, ".txt", sep= "")
+      data <- read.table(filename, sep= ",", stringsAsFactors = FALSE, col.names = c("Name", "Sex", "Count"))
+      data$Year <- i
+      fulldata <- rbind(fulldata, data)
+    }
+    return(fulldata)
+  } else{
+    fulldata <- data.frame()
+      for(c in year){
+        filename <- paste("yob", c, ".txt", sep = "")
+        data <- read.table(filename,sep= ",", stringsAsFactors = FALSE, col.names = c("Name", "Sex", "Count"))
+        dataYear <- c
+        fulldata <- rbind(fulldata, data)
+      }
+    return(fulldata)
+  }
+}  
+  
+  
+```
+
+Execute the code below and use the resulting data.frame for the rest of this problem.
+
+```{r}
+yall <- baby.names() 
+
+```
+
+Complete the function definition below that counts the
+number of occurences of the supplied "name" for a vector of "years".
+
+```{r}
+library(plyr)
+library(dplyr)
+
+lookup <- function(name,years)  {
+  count_by_year <- yall %>% filter(Name == name) %>% group_by(Year) %>% filter(Year %in% seq(1913,2013, by = 10)) %>%  summarize(Total=sum(Count))
+return(count_by_year)
+}                             
+
+```
+
+
+Use your function to find how many babies where born with the name "Jennifer"
+in each of the following years: 1913, 1923, ..., 2003, 2013.
+```{r}
+lookup("Jennifer", 1913:2013)      
+
+```
+
+
+What is the overall most popular name for a boy?  How about for a girl?
+```{r}
+yall%>%filter(Sex == "M")%>%group_by(Name) %>%summarize(Total = sum(Count))%>% arrange(desc(Total)) %>%head(1)
+#James is the most popular name for a boy.
+yall%>%filter(Sex == "F")%>%group_by(Name) %>%summarize(Total = sum(Count))%>% arrange(desc(Total)) %>%head(1)
+#Mary is the most popular name for a girl.
+
+```
+
+Produce a line plot showing the proportion of babies named "Mary" among
+all female names over time.
+```{r}
+marycount <- yall%>% group_by(Year) %>% filter(Name == "Mary") %>% filter(Sex == "F")%>% select(Count, Year)
+popfem <- yall %>% group_by(Year) %>% filter(Sex == "F")%>% summarise(Total = sum(Count))
+
+maryprop <- merge(marycount, popfem, by.x = "Year", by.y = "Year")
+head(maryprop)
+
+final <- maryprop %>% mutate(Prop = Count/Total)
+
+library(ggplot2)
+ggplot(final) + geom_line(aes(x=Year, y= Prop))
+
+```

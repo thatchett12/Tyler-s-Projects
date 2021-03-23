@@ -1,0 +1,66 @@
+---
+title: "Stat 123 Homework 14"
+author: "Tyler Hatchett"
+date: "10/14/19"
+output: word_document
+---
+Load the "movies.Rbin" file.  Calculate the mean rating
+for each level of MPAA rating (G, PG, etc.) using this data.  Hints:  You can
+download the data in R using the 'load' function and you can access
+the 'movies' data.frame by loading the R binary file with the 'load'
+function.
+
+```{r}
+load("movies.Rbin", verbose = TRUE)
+```
+```{r}
+setNames(aggregate(rating ~ mpaa, data = movies, FUN = mean), c("MPAA", "Rating"))
+```
+
+
+
+Which year has the most total IMDB votes on the movies made that year?
+
+```{r}
+movievotes <- setNames(aggregate(votes ~ year, data = movies, FUN = sum), c("Year", "Votes"))
+```
+
+```{r}
+which.max(movievotes$Votes)
+```
+```{r}
+movievotes[107,]
+```
+#That's how I found the year
+
+We are interested in finding which year created the most popular movies
+relative to their budget. Create a function that takes a data.frame and
+computes the average movie rating and divides it by the average budget.
+
+```{r}
+
+popular <- function(x){
+  
+    with(x, mean(rating, na.rm = TRUE)/mean(budget, na.rm = TRUE))
+  
+}
+```
+
+Using your function defined above and the given data, what were the 6 years in which movies were made most efficiently between 1905 and 2005? 
+(Hint: See the Baseball OBP example in Section 11.3.1.)
+
+```{r}
+library(plyr)
+efficiency <- ddply(movies, "year", popular)
+efficiency <- efficiency[!is.infinite(efficiency$V1),]
+efficiency <- efficiency[complete.cases(efficiency),]
+efficiency_movies <- efficiency[order(-efficiency$V1),]
+efficiency_movies[1:6,]
+```
+
+Thought question: What concerns do you have with this validity of this
+analysis?
+
+```{r}
+#For one thing, using the variables this way is very hard to understand because it spits out these very tiny numbers that are almost 0. Its hard to compare it like this. Also some of the oldest movies are the most efficient when it comes to low budget and higher rating. I feel that the scale discrepancy is bad also, because budgets have changed so much, but this rating scale has stayed the same. So really to make sense, inflation should occur equally for the rating numbers as it has for the budgets which would make the answer more accurate.
+```

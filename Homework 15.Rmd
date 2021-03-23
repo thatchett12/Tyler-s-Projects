@@ -1,0 +1,68 @@
+---
+title: "Stat 123 Homework 15"
+author: "Tyler Hatchett"
+date: "10/14/19"
+output: word_document
+---
+
+Data on the daily concentration of fine particles pollutant (PM2.5) for all
+monitor sites in Utah County is available in .csv files attached to the assignment, 
+with each file having data from a year. These files have the name format
+"ad_viz_plotval_data-XXXX.csv" (where XXXX is place holder for the year).  
+
+Write a function named 'air' that
+takes a 'year' argument and returns a data.frame containing that data for
+that year, suppressing the automatic conversion to factors.
+```{r}
+air <- function(x){
+  air09 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2009.csv", header = TRUE, stringsAsFactors = FALSE)
+  air10 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2010.csv", header = TRUE, stringsAsFactors = FALSE)
+  air11 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2011.csv", header = TRUE, stringsAsFactors = FALSE)
+  air12 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2012.csv", header = TRUE, stringsAsFactors = FALSE)
+  air13 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2013.csv", header = TRUE, stringsAsFactors = FALSE)
+  air14 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2014.csv", header = TRUE, stringsAsFactors = FALSE)
+  air15 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2015.csv", header = TRUE, stringsAsFactors = FALSE)
+  air16 <- read.csv(file = "/Users/Tyler Hatchett/Downloads/ad_viz_plotval_data-2016.csv", header = TRUE, stringsAsFactors = FALSE)
+  
+ return(list(air09, air10, air11, air12, air13, air14, air15, air16)) 
+  
+}
+```
+
+Using lapply, make a list containing a data.frame for each year.
+```{r}
+airpollution <- air(x)
+```
+
+Combine all the data.frames in the list to one data.frame (without losing any data).
+```{r}
+combinedair <- rbind(airpollution[[1]], airpollution[[2]], airpollution[[3]], airpollution[[4]], airpollution[[5]], airpollution[[6]], airpollution[[7]], airpollution[[8]])
+```
+
+
+Summarize this big data.frame to yield a data.frame containing only the
+average "DAILY_AQI_VALUE" and the average "Daily.Mean.PM2.5.Concentration" for each
+value of "Date".
+```{r}
+library(plyr)
+
+avg.by.date <- ddply(combinedair, .(Date), summarize, meanAQI = mean(DAILY_AQI_VALUE), meanpm2.5 = mean(Daily.Mean.PM2.5.Concentration))
+```
+
+Produce a scatter plot of the average "Daily.Mean.PM2.5.Concentration" (on
+the y-axis) and average "DAILY_AQI_VALUE" (on the x-axis).
+```{r}
+attach(avg.by.date)
+plot(avg.by.date$meanAQI, avg.by.date$meanpm2.5, main = "Scatter plot for Air Pollution", xlab = "Daily AQI Value", ylab = "Daily Mean Pm2.5 Concentration")
+```
+
+Add vertical lines at 50, 100, and 150 on the x-axis.  Hint: See the help for
+the "abline" function.
+```{r}
+plot(avg.by.date$meanAQI, avg.by.date$meanpm2.5, main = "Scatter plot for Air Pollution", xlab = "Daily AQI Value", ylab = "Daily Mean Pm2.5 Concentration")
+
+abline(v=50)
+abline(v=100)
+abline(v=150)
+```
+
